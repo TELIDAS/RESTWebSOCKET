@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions
+from rest_framework import permissions, generics, mixins
 from django.contrib.auth.models import User
 from chat.models import Chat, Room
 from chat.serializers import ChatSerializer, ChatPostSerializers, \
@@ -27,7 +27,7 @@ class Rooms(APIView):
 class Dialog(APIView):
     """Dialog for chat and messages using get and post methods"""
     permission_classes = [permissions.IsAuthenticated, ]
-    # permissions_classes = [permissions.AllowAny, ]
+    permissions_classes = [permissions.AllowAny, ]
 
     def get(self, request):
         room = request.GET.get('room')
@@ -36,13 +36,22 @@ class Dialog(APIView):
         return Response({'data': serializer.data})
 
     def post(self, request):
-        # room = request.data.get('room')
+        room = request.data.get('room')
         dialog = ChatPostSerializers(data=request.data)
         if dialog.is_valid():
             dialog.save(user=request.user)
-            return Response(status=201)
+            return Response(room, status=201)
         else:
             return Response(status=400)
+
+class DialogGeneric(generics.GenericAPIView,
+                    mixins.ListModelMixin,
+                    mixins.CreateModelMixin):
+    serializer_class = ChatSerializer, ChatPostSerializers
+    queryset = Chat.objects.all()
+    queryset2 = Room.objects.all()
+    permission_classes = [permissions.IsAuthenticated, ]
+    permissions_classes = [permissions.AllowAny, ]
 
 
 class AddUserRoom(APIView):

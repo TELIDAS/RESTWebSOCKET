@@ -18,10 +18,12 @@ class FooConsumer(WebsocketConsumer):
 
 class ChatConsumer(WebsocketConsumer):
 
-    def connect(self):
-        self.room_name = str(self.scope['url_route']['kwargs']['room_name'])
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
         self.room_group_name = 'chat_%s' % self.room_name
+        self.room_name = str(self.scope['url_route']['kwargs']['room_name'])
 
+    def connect(self):
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name

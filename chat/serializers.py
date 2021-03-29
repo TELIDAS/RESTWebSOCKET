@@ -22,6 +22,7 @@ class RoomSerializer(serializers.ModelSerializer):
 class ChatSerializer(serializers.ModelSerializer):
     """Serializer for chat"""
     user = UserSerializer()
+    room = RoomSerializer()
 
     class Meta:
         model = Chat
@@ -30,6 +31,10 @@ class ChatSerializer(serializers.ModelSerializer):
 
 class ChatPostSerializers(serializers.ModelSerializer):
     """Serializer for chat messages"""
+    room = RoomSerializer()
+    user = UserSerializer()
+
+
 
     class Meta:
         model = Chat
